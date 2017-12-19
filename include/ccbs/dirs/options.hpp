@@ -19,6 +19,16 @@ static constexpr const char* release = "release";
 
 }
 
+namespace action {
+
+static constexpr const char* key = "ACTION";
+
+static constexpr const char* clean = "clean";
+static constexpr const char* rebuild = "rebuild";
+
+
+}
+
 }
 
 #endif //PROJECT_OPTIONS_HPP

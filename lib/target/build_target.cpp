@@ -2,6 +2,8 @@
 #include <ccbs/rule/dependency_rule.hpp>
 #include <ccbs/rule/link_rule.hpp>
 
+using namespace ccsh::literals;
+
 namespace ccbs
 {
 
@@ -12,6 +14,18 @@ int build_target::build_dependencies(options& options_)
 
 int build_target::build_rules(options& options_)
 {
+    if (options_[action::key] == action::clean)
+    {
+        ccsh::fs::error_code ec;
+        for (const auto& file : files)
+        {
+            ccsh::fs::remove(ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file), ec);
+            ccsh::fs::remove(ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(file), ec);
+        }
+        ccsh::fs::remove(outfile, ec);
+        return 0;
+    }
+
     auto objects_cmd = object_command();
     auto dependency_cmd = dependency_command();
     auto so_cmd = target_command();
@@ -21,7 +35,7 @@ int build_target::build_rules(options& options_)
     {
         dep_rules.emplace(new dependency_rule{
             file,
-            ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"))(file),
+            ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file),
             dependency_cmd
         });
     }
@@ -31,9 +45,9 @@ int build_target::build_rules(options& options_)
     {
         object_rules.emplace(new rule{
             {file},
-            ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"))(file),
+            ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(file),
             objects_cmd,
-            {ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"))(file)}
+            {ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file)}
         });
     }
 
