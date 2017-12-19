@@ -1,10 +1,14 @@
 #include <ccbs/rule/rule.hpp>
 
+#include <mutex>
+
 namespace ccbs
 {
 
 void dump_command(compiler_ptr const& rule, std::ostream& os)
 {
+    static std::mutex mtx;
+    std::lock_guard<std::mutex> lock{mtx};
     auto& args = rule->native().args();
     os << rule->native().binary().string() << " ";
     for (const auto& arg : args)

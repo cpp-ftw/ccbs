@@ -1,6 +1,7 @@
 #include <ccbs/rule/ruleset.hpp>
 
 #include <ccbs/util/containers.hpp>
+#include <ccbs/util/parallel.hpp>
 
 namespace ccbs
 {
@@ -22,7 +23,7 @@ int ruleset::build_dependencies(std::set<package*> const& dependencies, options&
     return 0;
 }
 
-int ruleset::build(std::set<package*> const& dependencies, options&)
+int ruleset::build(std::set<package*> const& dependencies, options& options_)
 {
     // TODO: options may contain information about parallelization
 
@@ -32,13 +33,23 @@ int ruleset::build(std::set<package*> const& dependencies, options&)
         [](rule_ptr const& rule) { return rule->inputs(); }
     );
 
-    int last_result = 0;
-    for (auto& rule : serialized_rules)
+    bool rebuild = options_[action::key] == action::rebuild;
+
+    auto worker_func = [&](rule_ptr& ptr) -> int
     {
-        if (rule->needs_rebuild() && (last_result = rule->make(dependencies)) != 0)
-            break;
-    }
-    return last_result;
+        int res = 0;
+        if (rebuild || ptr->needs_rebuild())
+            res = ptr->make(dependencies);
+        return res;
+    };
+
+    auto conflicts_func = [&](rule_ptr const& a, rule_ptr const& b) -> bool
+    {
+        const auto& file = a->output();
+        return b->inputs().count(file) || b->dependencies().count(file);
+    };
+
+    return parallel_process(5, serialized_rules.begin(), serialized_rules.end(), worker_func, conflicts_func);
 }
 
 }
