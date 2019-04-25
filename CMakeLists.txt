@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
 
-add_subdirectory(./../ccsh ccsh EXCLUDE_FROM_ALL)
+add_subdirectory(./ccsh ccsh EXCLUDE_FROM_ALL)
 
-include_directories(../ccsh/include)
-include_directories(../ccsh/wrappers)
+include_directories(./ccsh/include)
+include_directories(./ccsh/wrappers)
 
 include_directories("include")
 

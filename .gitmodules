@@ -1,0 +1,3 @@
+[submodule "ccsh"]
+	path = ccsh
+	url = git@github.com:cpp-ftw/ccsh.git
