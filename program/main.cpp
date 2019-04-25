@@ -17,9 +17,9 @@ int main(int argc, const char ** argv)
 
     ccsh::command_builder<ccsh::gcc> pragma_command = ccsh::gcc();
     pragma_command.I(self_include_dir);
-    pragma_command.args().push_back(self_include_dir);
-    pragma_command.args().emplace_back(argv[1]);
-    pragma_command.args().emplace_back("-E");
+    pragma_command.add_arg(self_include_dir);
+    pragma_command.add_arg(argv[1]);
+    pragma_command.add_arg("-E");
 
     int result;
     auto includes = ccbs::get_all_pragmas(pragma_command, result);
@@ -57,8 +57,8 @@ int main(int argc, const char ** argv)
 
     gcc.o(output);
 
-    gcc.args().emplace_back("-x");
-    gcc.args().emplace_back("c++");
+    gcc.add_arg("-x");
+    gcc.add_arg("c++");
 
     for (const auto& dir : includes)
         gcc.I(dir);

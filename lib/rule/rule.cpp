@@ -13,7 +13,7 @@ void dump_command(ccsh::internal::command_native const& cmd, std::ostream& os)
     os << cmd.binary().string() << " ";
     for (const auto& arg : args)
     {
-        os << arg << " ";
+        os << ccsh::to_utf8(arg) << " ";
     }
     os << std::endl;
 }

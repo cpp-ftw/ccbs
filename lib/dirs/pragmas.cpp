@@ -9,12 +9,12 @@ template<typename FUNC>
 void tokenize_string(std::string line, std::string const& delimiters, FUNC&& func)
 {
     char* saveptr = nullptr;
-    char* token = strtok_r(&line[0], delimiters.c_str(), &saveptr);
+    char* token = ccsh::internal::strtok_compat(&line[0], delimiters.c_str(), &saveptr);
 
     while (token != nullptr)
     {
         func(token);
-        token = strtok_r(nullptr, delimiters.c_str(), &saveptr);
+        token = ccsh::internal::strtok_compat(nullptr, delimiters.c_str(), &saveptr);
     }
 }
 
@@ -41,7 +41,7 @@ std::vector<ccsh::fs::path> get_all_pragmas(ccsh::command_builder<ccsh::gcc>& co
                 // TODO: handle relative paths
                 // "# 1 filename" lines of output helps
                 includes.emplace_back(parts[2]);
-                command.args().push_back("-I" + parts[2]);
+                command.add_arg("-I" + parts[2]);
             }
         }
     };
@@ -69,14 +69,13 @@ ccsh::command_builder<ccsh::gcc> get_gcc_command(int argc, const char** argv)
 {
     ccsh::command_builder<ccsh::gcc> gcc = ccsh::gcc();
 
-    std::vector<std::string>& gcc_args = gcc.args();
-    gcc_args.reserve(std::size_t(argc));
+    gcc.args().reserve(std::size_t(argc));
     for (int i = 1; i < argc; ++i)
     {
-        gcc_args.emplace_back(argv[i]);
+        gcc.add_arg(argv[i]);
     }
 
-    gcc_args.emplace_back("-E");
+    gcc.add_arg("-E");
 
     return gcc;
 }
