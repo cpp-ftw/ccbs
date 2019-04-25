@@ -456,7 +456,7 @@ polymorphic_value<T> make_polymorphic_value(Ts&&... ts)
     p.cb_ = detail::make_unique<detail::direct_control_block<T>>(
         std::forward<Ts>(ts)...);
     p.ptr_ = p.cb_->ptr();
-    return std::move(p);
+    return p;
 }
 
 //

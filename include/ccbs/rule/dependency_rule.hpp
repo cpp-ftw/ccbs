@@ -3,12 +3,15 @@
 
 #include <ccbs/rule/rule.hpp>
 
+#include <mutex>
+
 namespace ccbs
 {
 
 class dependency_rule : public rule
 {
     mutable ccsh::fs::file_time_type last_read = ccsh::fs::file_time_type::clock::from_time_t(0);
+    mutable std::mutex mtx;
 public:
 
     dependency_rule(ccsh::fs::path input, ccsh::fs::path output, rule_cmd cmd)

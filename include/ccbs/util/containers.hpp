@@ -34,7 +34,7 @@ std::vector<ELEMENT> serialize_set(std::set<ELEMENT> const& rules_, KEY_FUNC&& k
     while (result.size() != num)
     {
         size_t rules_size = rules.size();
-        for (auto it = rules.begin(); it != rules.end(); ++it)
+        for (auto it = rules.begin(); it != rules.end();)
         {
             const auto& ruleInputs = value_func(it->second);
             bool hasUnresolvedInput = std::any_of(
@@ -47,7 +47,11 @@ std::vector<ELEMENT> serialize_set(std::set<ELEMENT> const& rules_, KEY_FUNC&& k
             if (!hasUnresolvedInput)
             {
                 result.push_back(it->second);
-                rules.erase(it);
+                it = rules.erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
         if (rules_size == rules.size())

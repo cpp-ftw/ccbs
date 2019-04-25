@@ -65,17 +65,13 @@ int parallel_process(std::size_t count, std::size_t no_threads, std::function<in
                         {
                             index = i;
                             state = thread_status::working;
+                            states[index] = parallel_state::started;
                         }
                     }
                 }
             }
             if (state == thread_status::working)
             {
-                {
-                    std::lock_guard<std::mutex> lock{state_mtx};
-                    states[index] = parallel_state::started;
-                }
-
                 int result = callback(index);
 
                 {

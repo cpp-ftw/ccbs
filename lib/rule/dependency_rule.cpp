@@ -56,6 +56,8 @@ namespace ccbs
 
 bool dependency_rule::needs_rebuild() const
 {
+    std::lock_guard<std::mutex> lock(mtx);
+
     if (rule::needs_rebuild())
         return true;
 

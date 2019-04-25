@@ -1,5 +1,5 @@
-#pragma ccbs /home/gabesz/git/ccsh/include
-#pragma ccbs /home/gabesz/git/ccsh/wrappers
+#pragma ccbs /mnt/game/repos/ccbs/ccsh/include
+#pragma ccbs /mnt/game/repos/ccbs/ccsh/wrappers
 
 #include <ccbs/ccbs.hpp>
 
@@ -17,7 +17,7 @@ struct pthread_pkg : public ccbs::package_flags
 
 struct ccsh_pkg : public ccbs::cmake_package
 {
-    ccsh_pkg() : ccbs::cmake_package{CCBS_DOT / "../ccsh"_p, {"ccsh_lib"}}
+    ccsh_pkg() : ccbs::cmake_package{CCBS_DOT / "ccsh"_p, {"ccsh_lib"}}
     {
         include_directories(basedir() / "wrappers"_p);
     }
@@ -29,7 +29,7 @@ struct ccsh_pkg : public ccbs::cmake_package
 
 struct ccbs_pkg : public ccbs::shared_library
 {
-    ccbs_pkg() : ccbs::shared_library(CCBS_DOT / "../libccbs2.so"_p)
+    ccbs_pkg() : ccbs::shared_library(CCBS_DOT / "libccbs2.so"_p)
     {
         sources(ccbs::find_matching(CCBS_DOT / "lib"_p, "*.cpp", 3));
         command_public()->include_directory(CCBS_DOT / "include"_p);

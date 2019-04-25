@@ -7,9 +7,9 @@ std::set<ccsh::fs::path> find_matching(ccsh::fs::path const& dir, std::string co
 {
     std::vector<std::string> str_result;
     if (depth < 0)
-        ccsh::shell("find", {dir.string(), "-name", pattern}) > str_result;
+        (ccsh::shell("find", {dir.string(), "-name", pattern}) > str_result).run();
     else
-        ccsh::shell("find", {dir.string(), "-maxdepth", std::to_string(depth), "-name", pattern}) > str_result;
+        (ccsh::shell("find", {dir.string(), "-maxdepth", std::to_string(depth), "-name", pattern}) > str_result).run();
     std::set<ccsh::fs::path> result;
     std::copy(str_result.begin(), str_result.end(), std::inserter(result, result.end()));
     return result;
