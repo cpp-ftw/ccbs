@@ -20,59 +20,52 @@ class gcc : public compiler_t<ccsh::gcc_t>
             "c++17",
         };
     };
-
+    using base = compiler_t<ccsh::gcc_t>;
 public:
-    using compiler_t<ccsh::gcc_t>::compiler_t;
-
-    void input(ccsh::fs::path const& path) override
+    explicit gcc(builder impl) : base(std::move(impl))
     {
-        impl().args().push_back(path.string());
-    }
-    void output(ccsh::fs::path const& path) override
-    {
-        impl().o(path);
+        categorized([&](ccsh::gcc_t &cc) { cc.MM(); }, dep_cmd{});
+        categorized([&](ccsh::gcc_t &cc) { cc.c(); }, object_cmd{});
+        categorized([&](ccsh::gcc_t &cc) { cc.c().PIC(); }, object_so_cmd{});
+        categorized([&](ccsh::gcc_t &cc) { cc.shared(); }, shared_cmd{});
     }
 
     void std_version(std_ std1) override
     {
-        impl().std(ccsh::enum_to_string(std1, std_mapping()));
+        categorized([&](ccsh::gcc_t& cc) { cc.std(ccsh::enum_to_string(std1, std_mapping())); }, cpp_flag{});
     }
     void include_directory(ccsh::fs::path const& path) override
     {
-        impl().I(path);
+        categorized([&](ccsh::gcc_t& cc) { cc.I(path); }, cpp_flag{});
     }
     void link_directory(ccsh::fs::path const& path) override
     {
-        impl().L(path);
+        categorized([&](ccsh::gcc_t& cc) { cc.L(path); }, linker_flag{});
     }
     void add_rpath(ccsh::fs::path const& path)
     {
-        native().args().push_back("-Wl,-rpath," + path.string());
+        add_arg("-Wl,-rpath," + path.string(), linker_flag{});
     }
     void link_library(std::string const& lib) override
     {
-        impl().l(lib);
+        categorized([&](ccsh::gcc_t& cc) { cc.l(lib); }, linker_flag{});
     }
     void definition(std::string const& string, std::string const& string1) override
     {
-        impl().D(string, string1);
+        categorized([&](ccsh::gcc_t& cc) { cc.D(string, string1); }, cpp_flag{});
     }
 
-    void object_so() override
+    ccsh::command build(std::set<ccsh::fs::path> const& inputs, ccsh::fs::path const& output,
+        category_spec c) const override
     {
-        impl().c().PIC();
-    }
-    void object() override
-    {
-        impl().c();
-    }
-    void dependency() override
-    {
-        impl().MM();
-    }
-    void shared_object() override
-    {
-        impl().shared();
+        if (c.satisfies<static_cmd>())
+        {
+            std::vector<std::string> args = {"rcs", output.string()};
+            for (const auto& p : inputs)
+                args.push_back(p.string());
+            return ccsh::shell("ar", args);
+        }
+        return base::build(inputs, output, c);
     }
 };
 

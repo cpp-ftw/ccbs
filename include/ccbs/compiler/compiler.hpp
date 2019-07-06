@@ -3,19 +3,25 @@
 
 #include <ccsh/ccsh.hpp>
 #include <ccbs/util/polymorphic_value.hpp>
+#include <ccbs/util/category.hpp>
+
+#include <set>
 
 namespace ccbs
 {
+
+class compiler;
+using compiler_ptr = jbcoe::polymorphic_value<compiler>;
 
 class compiler
 {
 public:
     virtual ~compiler() = default;
 
-    virtual ccsh::internal::command_native& native() = 0;
-    virtual ccsh::internal::command_native const& native() const = 0;
+    void add_arg(const std::string& arg) { add_arg(arg, category_all{}); }
+    virtual void add_arg(const std::string& arg, category_spec c) = 0;
 
-    int run() { return native().run(); }
+    virtual ccsh::command build(std::set<ccsh::fs::path> const& inputs, ccsh::fs::path const& output, category_spec c) const = 0;
 
     enum std_
     {
@@ -26,9 +32,6 @@ public:
         cpp17,
     };
 
-    virtual void input(ccsh::fs::path const&) = 0;
-    virtual void output(ccsh::fs::path const&) = 0;
-
     virtual void std_version(std_ std1) = 0;
 
     virtual void include_directory(ccsh::fs::path const&) = 0;
@@ -37,30 +40,60 @@ public:
 
     virtual void definition(std::string const&, std::string const&) = 0;
 
-    virtual void object_so() = 0;
-    virtual void object() = 0;
-    virtual void dependency() = 0;
-    virtual void shared_object() = 0;
+    struct dep_cmd final : category_of<dep_cmd> {};
+    struct object_cmd final : category_of<object_cmd> {};
+    struct object_so_cmd final : category_of<object_so_cmd> {};
+    struct exe_cmd final : category_of<exe_cmd> {};
+    struct shared_cmd final : category_of<shared_cmd> {};
+    struct static_cmd final : category_of<static_cmd> {};
+
+    struct cpp_flag final : category_of<cpp_flag, dep_cmd, object_cmd, object_so_cmd> {};
+    struct c_flag final : category_of<c_flag, cpp_flag> {};
+    struct cxx_flag final : category_of<cxx_flag, cpp_flag> {};
+    struct linker_flag final : category_of<linker_flag, exe_cmd, shared_cmd> {};
+
+    struct compiler_flag final : category_of<compiler_flag, c_flag, cxx_flag, linker_flag> {};
 };
 
 template<typename Impl>
 class compiler_t : public compiler
 {
-    ccsh::command_builder<Impl> impl_;
+public:
+    using builder = ccsh::command_builder<Impl>;
+private:
+    builder impl_;
+    std::vector<std::pair<ccsh::tstring_t, category_spec>> args_;
 
 public:
-    explicit compiler_t(ccsh::command_builder<Impl> impl)
+
+    explicit compiler_t(builder impl)
         : impl_(std::move(impl))
     { }
 
-    ccsh::internal::command_native& native() override { return impl_; }
-    ccsh::internal::command_native const& native() const override { return impl_; }
+    ccsh::command build(std::set<ccsh::fs::path> const& inputs, ccsh::fs::path const& output, category_spec c) const override
+    {
+        builder impl = impl_;
+        for (const auto& p : inputs)
+            impl.input(p);
+        impl.output(output);
+        for (const auto& arg_pair : args_)
+            if (arg_pair.second.satisfies(c))
+                impl.add_arg(arg_pair.first);
+        return impl;
+    }
 
-    ccsh::command_builder<Impl>& impl() { return impl_; }
-    ccsh::command_builder<Impl> const& impl() const { return impl_; }
+    template<typename Func>
+    void categorized(Func&& func, category_spec c = category_all{})
+    {
+        Impl impl;
+        func(impl);
+        for (auto& arg : impl.args())
+            args_.emplace_back(std::move(arg), c);
+    }
+
+    using compiler::add_arg;
+    void add_arg(const std::string& arg, category_spec c) override { args_.emplace_back(ccsh::from_utf8(arg), c); }
 };
-
-using compiler_ptr = jbcoe::polymorphic_value<compiler>;
 
 }
 

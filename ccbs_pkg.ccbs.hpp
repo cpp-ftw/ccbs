@@ -10,7 +10,7 @@ struct pthread_pkg : public ccbs::package_flags
     void add_arguments(ccbs::compiler& compiler) const override
     {
         ccbs::visit_one(compiler, [](ccbs::gcc& cc) {
-            cc.native().args().emplace_back("-pthread");
+            cc.add_arg("-pthread");
         });
     }
 };
@@ -32,8 +32,8 @@ struct ccbs_pkg : public ccbs::shared_library
     ccbs_pkg() : ccbs::shared_library(CCBS_DOT / "libccbs2.so"_p)
     {
         sources(ccbs::find_matching(CCBS_DOT / "lib"_p, "*.cpp", 3));
-        command_public()->include_directory(CCBS_DOT / "include"_p);
         temp_dir("/tmp/ccbs"_p);
+        command()->include_directory(CCBS_DOT / "include"_p);
         command()->std_version(ccbs::compiler::cpp11);
         depends<pthread_pkg>();
         depends<ccsh_pkg>();

@@ -5,12 +5,12 @@
 namespace ccbs
 {
 
-void dump_command(compiler_ptr const& rule, std::ostream& os)
+void dump_command(ccsh::internal::command_native const& cmd, std::ostream& os)
 {
     static std::mutex mtx;
     std::lock_guard<std::mutex> lock{mtx};
-    auto& args = rule->native().args();
-    os << rule->native().binary().string() << " ";
+    auto& args = cmd.args();
+    os << cmd.binary().string() << " ";
     for (const auto& arg : args)
     {
         os << arg << " ";
@@ -18,18 +18,13 @@ void dump_command(compiler_ptr const& rule, std::ostream& os)
     os << std::endl;
 }
 
-rule_cmd make_rule_cmd(compiler_ptr const& rule)
+rule_cmd make_rule_cmd(compiler_ptr const& rule, category_spec c)
 {
-    return [rule](std::set<ccsh::fs::path> const& inputs,
+    return [rule, c](std::set<ccsh::fs::path> const& inputs,
                   ccsh::fs::path const& output,
                   std::set<package*> const& pkgs) -> int {
 
         auto rule_copy = rule;
-
-        for (const auto& p : inputs)
-            rule_copy->input(p);
-
-        rule_copy->output(output);
 
         for (const auto& pkg : pkgs)
             pkg->add_arguments(*rule_copy);
@@ -38,14 +33,16 @@ rule_cmd make_rule_cmd(compiler_ptr const& rule)
 
         if (!output_dir.empty())
         {
-            int mkdir_result = ccsh::shell("mkdir", {"-p", output.parent_path().string()}).run();
-            if (mkdir_result != 0)
-                return mkdir_result;
+            ccsh::fs::create_directories(output_dir);
         }
 
-        dump_command(rule_copy, std::cout);
+        ccsh::command cmd = rule_copy->build(inputs, output, c);
+        if (auto* native = dynamic_cast<ccsh::internal::command_native*>(cmd.base()))
+            dump_command(*native, std::cout);
+        else
+            std::cout << "MAKE " << output.string() << std::endl;
 
-        return rule_copy->run();
+        return rule_copy->build(inputs, output, c).run();
     };
 }
 

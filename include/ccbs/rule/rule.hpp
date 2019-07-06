@@ -6,6 +6,7 @@
 
 #include <ccbs/compiler/compiler.hpp>
 #include <ccbs/util/polymorphic_value.hpp>
+#include <ccbs/util/category.hpp>
 
 #include <ccsh/ccsh.hpp>
 #include <ccsh/cc.hpp>
@@ -60,8 +61,8 @@ public:
     virtual ~rule() = default;
 };
 
-void dump_command(compiler_ptr const& rule, std::ostream& os);
-rule_cmd make_rule_cmd(compiler_ptr const& rule);
+void dump_command(ccsh::internal::command_native const& cmd, std::ostream& os);
+rule_cmd make_rule_cmd(compiler_ptr const& rule, category_spec c);
 std::set<ccsh::fs::path> rule_outputs(std::set<rule_ptr> const& rules);
 
 }
