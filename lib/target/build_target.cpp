@@ -14,6 +14,8 @@ int build_target::build_dependencies(options& options_)
 
 int build_target::build_rules(options& options_)
 {
+    ccsh::fs::path tempdir = this->tempdir / this->project_;
+
     if (options_[action::key] == action::clean)
     {
         ccsh::fs::error_code ec;
@@ -23,7 +25,7 @@ int build_target::build_rules(options& options_)
             ccsh::fs::remove(ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(file), ec);
         }
         ccsh::fs::remove(outfile, ec);
-        return 0;
+        return ec ? 1 : 0;
     }
 
     auto objects_cmd = object_command();
@@ -35,7 +37,7 @@ int build_target::build_rules(options& options_)
     {
         dep_rules.emplace(new dependency_rule{
             file,
-            ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file),
+            ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(ccsh::fs::safe_relative(file, project_root_)),
             dependency_cmd
         });
     }
@@ -43,11 +45,12 @@ int build_target::build_rules(options& options_)
     std::set<rule_ptr> object_rules;
     for (const auto& file : files)
     {
+        const auto& rel = ccsh::fs::safe_relative(file, project_root_);
         object_rules.emplace(new rule{
             {file},
-            ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(file),
+            ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(rel),
             objects_cmd,
-            {ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file)}
+            {ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(rel)}
         });
     }
 

@@ -15,6 +15,8 @@ class build_target
     std::set<ccsh::fs::path> files;
     ccsh::fs::path tempdir;
     ccsh::fs::path outfile;
+    ccsh::fs::path project_root_;
+    std::string project_;
     compiler_ptr cmd;
 
 public:
@@ -30,7 +32,8 @@ public:
 
     void sources(std::set<ccsh::fs::path> const& source_files)
     {
-        files.insert(source_files.begin(), source_files.end());
+        for (const auto& file : source_files)
+            files.insert(ccsh::fs::weakly_canonical(file));
     }
 
     void sources(ccsh::fs::path const& source_file)
@@ -46,6 +49,12 @@ public:
         for (auto depPtr : package.dependencies())
             dependencies_.insert(depPtr);
     }
+
+    std::string const& project() const { return project_; }
+    void project(std::string name) { project_ = std::move(name); }
+
+    ccsh::fs::path const& project_root() const { return project_root_; }
+    void project_root(ccsh::fs::path dir) { project_root_ = std::move(dir); }
 
     template<typename PACKAGE>
     void depends() { add_dependency(repository::get<PACKAGE>()); }
