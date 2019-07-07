@@ -2,10 +2,10 @@
 #define PROJECT_BUILD_TARGET_HPP
 
 #include <ccbs/rule/ruleset.hpp>
-#include <ccbs/rule/rule.hpp>
 #include <ccbs/package/repository.hpp>
 #include <ccbs/util/polymorphic_value.hpp>
 #include <ccbs/compiler/gcc.hpp>
+
 
 namespace ccbs {
 
@@ -26,9 +26,10 @@ public:
         , cmd(std::move(cmd))
     {}
 
+    virtual int build(options&);
     virtual int build_dependencies(options&);
     virtual int build_rules(options&);
-    virtual int build(options&);
+    virtual void add_rules(ruleset& rules);
 
     void sources(std::set<ccsh::fs::path> const& source_files)
     {

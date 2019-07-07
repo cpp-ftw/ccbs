@@ -8,18 +8,20 @@ namespace ccbs {
 
 class ruleset
 {
-    std::set<rule_ptr> rules;
+    std::set<rule_ptr> rules_;
 
 public:
 
     void add_rules(std::set<rule_ptr> const& inputs)
     {
-        rules.insert(inputs.begin(), inputs.end());
+        rules_.insert(inputs.begin(), inputs.end());
     }
     void add_rule(rule_ptr const& input)
     {
-        rules.insert(input);
+        rules_.insert(input);
     }
+
+    const std::set<rule_ptr>& rules() const { return rules_; }
 
     int build(std::set<package*> const& dependencies, options&);
     static int build_dependencies(std::set<package*> const& dependencies, options&);

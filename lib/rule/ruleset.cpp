@@ -28,7 +28,7 @@ int ruleset::build(std::set<package*> const& dependencies, options& options_)
     // TODO: options may contain information about parallelization
 
     auto serialized_rules = serialize_set(
-        this->rules,
+        this->rules_,
         [](rule_ptr const& rule) { return rule->output(); },
         [](rule_ptr const& rule) { return rule->inputs(); }
     );

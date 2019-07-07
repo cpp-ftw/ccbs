@@ -1,4 +1,5 @@
 #include <ccbs/target/build_target.hpp>
+#include <ccbs/rule/ruleset.hpp>
 #include <ccbs/rule/dependency_rule.hpp>
 #include <ccbs/rule/link_rule.hpp>
 
@@ -12,21 +13,9 @@ int build_target::build_dependencies(options& options_)
     return ruleset::build_dependencies(dependencies(), options_);
 }
 
-int build_target::build_rules(options& options_)
+void build_target::add_rules(ruleset& rules)
 {
     ccsh::fs::path tempdir = this->tempdir / this->project_;
-
-    if (options_[action::key] == action::clean)
-    {
-        ccsh::fs::error_code ec;
-        for (const auto& file : files)
-        {
-            ccsh::fs::remove(ccbs::prefix_dir(tempdir, ccbs::add_extension(".d"_p))(file), ec);
-            ccsh::fs::remove(ccbs::prefix_dir(tempdir, ccbs::add_extension(".o"_p))(file), ec);
-        }
-        ccsh::fs::remove(outfile, ec);
-        return ec ? 1 : 0;
-    }
 
     auto objects_cmd = object_command();
     auto dependency_cmd = dependency_command();
@@ -55,11 +44,25 @@ int build_target::build_rules(options& options_)
     }
 
     auto so_rule = std::make_shared<link_rule>(rule_outputs(object_rules), outfile, so_cmd, std::set<ccsh::fs::path>{}, dependencies());
+    rules.add_rules(dep_rules);
+    rules.add_rules(object_rules);
+    rules.add_rule(so_rule);
+}
 
+
+int build_target::build_rules(options& options_)
+{
     ruleset target;
-    target.add_rules(dep_rules);
-    target.add_rules(object_rules);
-    target.add_rule(so_rule);
+    add_rules(target);
+
+    if (options_[action::key] == action::clean)
+    {
+        ccsh::fs::error_code ec;
+        for (const auto& rule : target.rules())
+            ccsh::fs::remove(rule->output(), ec);
+        return ec ? 1 : 0;
+    }
+
     return target.build(dependencies(), options_);
 }
 
