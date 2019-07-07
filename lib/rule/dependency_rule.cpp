@@ -54,36 +54,17 @@ void dependency_parser(std::string line, std::set<ccsh::fs::path>& headers)
 namespace ccbs
 {
 
-bool dependency_rule::needs_rebuild() const
+int dependency_rule::explore()
 {
-    std::lock_guard<std::mutex> lock(mtx);
+    if (!ccsh::fs::exists(output()))
+        return 0;
 
-    if (rule::needs_rebuild())
-        return true;
+    auto parser = [&](std::string line) {
+        return dependency_parser(std::move(line), dependencies());
+    };
 
-    const auto& input = *inputs().begin();
-
-    auto filestamp = ccsh::fs::last_write_time(input);
-
-    if (last_read < filestamp)
-    {
-        std::set<ccsh::fs::path> headers;
-        auto parser = std::bind(&dependency_parser, std::placeholders::_1, std::ref(headers));
-
-        (ccsh::cat{this->output()} > parser).run();
-
-        auto& deps = const_cast<std::set<ccsh::fs::path>&>(dependencies()); // sorry
-
-        deps.clear();
-        for (const auto& header : headers)
-            deps.insert(header);
-
-        last_read = filestamp;
-    }
-
-    return rule::needs_rebuild();
+    return (ccsh::cat{this->output()} > parser).run();
 }
-
 
 }
 

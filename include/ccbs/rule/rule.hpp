@@ -38,6 +38,8 @@ public:
         , dependencies_(std::move(dependencies))
     { }
 
+    virtual int explore() { return 0; }
+
     virtual bool needs_rebuild() const;
 
     virtual int make(std::set<package*> const& dependencies)
@@ -54,6 +56,11 @@ public:
         return output_;
     }
     std::set<ccsh::fs::path> const& dependencies() const
+    {
+        return dependencies_;
+    }
+
+    std::set<ccsh::fs::path>& dependencies()
     {
         return dependencies_;
     }
