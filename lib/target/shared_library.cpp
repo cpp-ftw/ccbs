@@ -5,7 +5,7 @@ using namespace ccsh::literals;
 namespace ccbs
 {
 
-void shared_library::add_arguments(compiler& cc) const
+void shared_library::use_flags(compiler& cc) const
 {
 //    const auto& public_flags = command_public_->native().args();
 //    auto& flags = cc.native().args();

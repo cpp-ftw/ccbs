@@ -29,7 +29,7 @@ rule_cmd make_rule_cmd(compiler_ptr const& rule, category_spec c)
         auto rule_copy = rule;
 
         for (const auto& pkg : pkgs)
-            pkg->add_arguments(*rule_copy);
+            pkg->use_flags(*rule_copy);
 
         ccsh::fs::path output_dir = output.parent_path();
 

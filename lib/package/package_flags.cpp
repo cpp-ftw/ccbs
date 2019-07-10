@@ -3,7 +3,7 @@
 namespace ccbs
 {
 
-void package_flags::add_arguments(compiler& cc) const
+void package_flags::use_flags(compiler& cc) const
 {
     for (const auto& def : D)
         cc.definition(def.first, def.second);

@@ -7,7 +7,7 @@ using namespace ccsh::literals;
 
 struct pthread_pkg : public ccbs::package_flags
 {
-    void add_arguments(ccbs::compiler& compiler) const override
+    void use_flags(ccbs::compiler& compiler) const override
     {
         ccbs::visit_one(compiler, [](ccbs::gcc& cc) {
             cc.add_arg("-pthread");

@@ -22,7 +22,7 @@ public:
     {
         return build_rules(options_, compiler_);
     }
-    void add_arguments(compiler& cc) const override;
+    void use_flags(compiler& cc) const override;
 
     rule_cmd dependency_command(compiler_ptr& compiler_) override
     {
