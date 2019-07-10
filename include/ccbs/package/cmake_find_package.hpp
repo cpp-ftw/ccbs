@@ -22,7 +22,7 @@ public:
         , components_(std::move(components_))
     {}
 
-    int prepare(options&) override;
+    int prepare(options&, compiler_ptr&) override;
 
     void add_option(std::string key, std::string value)
     {

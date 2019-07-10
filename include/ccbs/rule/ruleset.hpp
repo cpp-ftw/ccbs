@@ -1,8 +1,8 @@
 #ifndef CCBS_BUILD_PACKAGE_HPP
 #define CCBS_BUILD_PACKAGE_HPP
 
-#include <ccbs/package/package_flags.hpp>
 #include <ccbs/rule/rule.hpp>
+#include <ccbs/compiler/compiler_ptr.hpp>
 
 namespace ccbs {
 
@@ -24,7 +24,7 @@ public:
     const std::set<rule_ptr>& rules() const { return rules_; }
 
     int build(std::set<package*> const& dependencies, options&);
-    static int build_dependencies(std::set<package*> const& dependencies, options&);
+    static int build_dependencies(std::set<package*> const& dependencies, options&, compiler_ptr&);
 };
 
 }

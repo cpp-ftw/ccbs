@@ -4,8 +4,7 @@
 #include <ccbs/package/package.hpp>
 #include <ccbs/util/find_utils.hpp>
 
-#include <ccbs/compiler/compiler.hpp>
-#include <ccbs/util/polymorphic_value.hpp>
+#include <ccbs/compiler/compiler_ptr.hpp>
 #include <ccbs/util/category.hpp>
 
 #include <ccsh/ccsh.hpp>

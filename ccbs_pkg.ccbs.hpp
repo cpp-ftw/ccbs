@@ -33,14 +33,19 @@ struct ccbs_pkg : public ccbs::shared_library
     {
         project("ccbs");
         project_root(CCBS_DOT);
-#ifdef _WIN32
-        command()->definition("_UNICODE", "1");
-#endif
         sources(ccbs::find_matching(CCBS_DOT / "lib"_p, "*.cpp"));
-        command()->include_directory(CCBS_DOT / "include"_p);
         temp_dir(CCBS_DOT / "tmp"_p);
-        command()->std_version(ccbs::compiler::cpp11);
         depends<pthread_pkg>();
         depends<ccsh_pkg>();
     }
+
+    void build_flags(ccbs::options &, ccbs::compiler_ptr &compiler_) override
+    {
+#ifdef _WIN32
+        compiler_->definition("_UNICODE", "1");
+#endif
+        compiler_->include_directory(CCBS_DOT / "include"_p);
+        compiler_->std_version(ccbs::compiler::cpp11);
+    }
+
 };

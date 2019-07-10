@@ -6,7 +6,7 @@
 namespace ccbs
 {
 
-int ruleset::build_dependencies(std::set<package*> const& dependencies, options& options_)
+int ruleset::build_dependencies(std::set<package*> const& dependencies, options& options_, compiler_ptr& compiler_)
 {
     auto serialized_deps = serialize_set(
         dependencies,
@@ -16,7 +16,7 @@ int ruleset::build_dependencies(std::set<package*> const& dependencies, options&
 
     for (const auto& dep : serialized_deps)
     {
-        int result = dep->prepare(options_);
+        int result = dep->prepare(options_, compiler_);
         if (result != 0)
             return result;
     }

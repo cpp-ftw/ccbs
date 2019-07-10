@@ -12,4 +12,7 @@
 
 #include <ccbs/dirs/options.hpp>
 
+#include <ccbs/compiler/compiler.hpp>
+#include <ccbs/compiler/gcc.hpp>
+
 #endif //PROJECT_CCBS_HPP

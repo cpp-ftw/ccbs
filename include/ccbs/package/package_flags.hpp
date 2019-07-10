@@ -19,7 +19,7 @@ public:
     {
         return to_timestamp(0);
     }
-    int prepare(options&) override { return 0; }
+    int prepare(options&, compiler_ptr&) override { return 0; }
     void add_arguments(compiler&) const override;
 
     void include_directories(ccsh::fs::path dir)

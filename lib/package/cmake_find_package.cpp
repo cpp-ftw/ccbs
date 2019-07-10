@@ -5,7 +5,7 @@ using namespace ccsh::literals;
 
 namespace ccbs {
 
-int cmake_find_package::prepare(options&)
+int cmake_find_package::prepare(options&, compiler_ptr&)
 {
     std::vector<std::string> default_arguments = {
         "--find-package",

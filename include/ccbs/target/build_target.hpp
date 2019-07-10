@@ -4,7 +4,6 @@
 #include <ccbs/rule/ruleset.hpp>
 #include <ccbs/package/repository.hpp>
 #include <ccbs/util/polymorphic_value.hpp>
-#include <ccbs/compiler/gcc.hpp>
 
 
 namespace ccbs {
@@ -17,19 +16,18 @@ class build_target
     ccsh::fs::path outfile;
     ccsh::fs::path project_root_;
     std::string project_;
-    compiler_ptr cmd;
 
 public:
 
-    explicit build_target(ccsh::fs::path output, compiler_ptr cmd = jbcoe::make_polymorphic_value<gcc>(ccsh::gcc{}))
+    explicit build_target(ccsh::fs::path output)
         : outfile(std::move(output))
-        , cmd(std::move(cmd))
     {}
 
-    virtual int build(options&);
-    virtual int build_dependencies(options&);
-    virtual int build_rules(options&);
-    virtual void add_rules(ruleset& rules);
+    virtual int build(options&, compiler_ptr&);
+    virtual int build_dependencies(options&, compiler_ptr&);
+    virtual int build_rules(options&, compiler_ptr&);
+    virtual void add_rules(ruleset& rules, compiler_ptr&);
+    virtual void build_flags(options &, compiler_ptr &) {}
 
     void sources(std::set<ccsh::fs::path> const& source_files)
     {
@@ -62,14 +60,11 @@ public:
 
     void temp_dir(ccsh::fs::path dir) { tempdir = std::move(dir); }
 
-    compiler_ptr& command() { return cmd; }
-    compiler_ptr command_copy() const { return cmd; }
-
     ccsh::fs::path const& output() const { return outfile; }
 
-    virtual rule_cmd dependency_command() = 0;
-    virtual rule_cmd object_command() = 0;
-    virtual rule_cmd target_command() = 0;
+    virtual rule_cmd dependency_command(compiler_ptr&) = 0;
+    virtual rule_cmd object_command(compiler_ptr&) = 0;
+    virtual rule_cmd target_command(compiler_ptr&) = 0;
 
     virtual ~build_target() = default;
 };

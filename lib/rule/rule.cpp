@@ -1,5 +1,7 @@
 #include <ccbs/rule/rule.hpp>
 
+#include <ccbs/compiler/compiler.hpp>
+
 #include <mutex>
 
 namespace ccbs

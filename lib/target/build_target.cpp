@@ -8,18 +8,18 @@ using namespace ccsh::literals;
 namespace ccbs
 {
 
-int build_target::build_dependencies(options& options_)
+int build_target::build_dependencies(options& options_, compiler_ptr& compiler_)
 {
-    return ruleset::build_dependencies(dependencies(), options_);
+    return ruleset::build_dependencies(dependencies(), options_, compiler_);
 }
 
-void build_target::add_rules(ruleset& rules)
+void build_target::add_rules(ruleset& rules, compiler_ptr& compiler_)
 {
     ccsh::fs::path tempdir = this->tempdir / this->project_;
 
-    auto objects_cmd = object_command();
-    auto dependency_cmd = dependency_command();
-    auto so_cmd = target_command();
+    auto objects_cmd = object_command(compiler_);
+    auto dependency_cmd = dependency_command(compiler_);
+    auto so_cmd = target_command(compiler_);
 
     std::set<rule_ptr> dep_rules;
     for (const auto& file : files)
@@ -50,10 +50,11 @@ void build_target::add_rules(ruleset& rules)
 }
 
 
-int build_target::build_rules(options& options_)
+int build_target::build_rules(options& options_, compiler_ptr& compiler_)
 {
     ruleset target;
-    add_rules(target);
+    build_flags(options_, compiler_);
+    add_rules(target, compiler_);
 
     if (options_[action::key] == action::clean)
     {
@@ -66,13 +67,13 @@ int build_target::build_rules(options& options_)
     return target.build(dependencies(), options_);
 }
 
-int build_target::build(options& options_)
+int build_target::build(options& options_, compiler_ptr& compiler_)
 {
-    int result1 = build_dependencies(options_);
+    int result1 = build_dependencies(options_, compiler_);
     if (result1 != 0)
         return result1;
 
-    return build_rules(options_);
+    return build_rules(options_, compiler_);
 }
 
 }

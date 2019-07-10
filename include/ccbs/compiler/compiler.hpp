@@ -1,6 +1,8 @@
 #ifndef PROJECT_COMPILER_HPP
 #define PROJECT_COMPILER_HPP
 
+#include "compiler_ptr.hpp"
+
 #include <ccsh/ccsh.hpp>
 #include <ccbs/util/polymorphic_value.hpp>
 #include <ccbs/util/category.hpp>
@@ -9,9 +11,6 @@
 
 namespace ccbs
 {
-
-class compiler;
-using compiler_ptr = jbcoe::polymorphic_value<compiler>;
 
 class compiler
 {

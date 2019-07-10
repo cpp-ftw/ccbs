@@ -18,23 +18,23 @@ public:
     {
         return build_target::dependencies();
     }
-    int prepare(options& options_) override
+    int prepare(options& options_, compiler_ptr& compiler_) override
     {
-        return build_rules(options_);
+        return build_rules(options_, compiler_);
     }
     void add_arguments(compiler& cc) const override;
 
-    rule_cmd dependency_command() override
+    rule_cmd dependency_command(compiler_ptr& compiler_) override
     {
-        return make_rule_cmd(command(), compiler::dep_cmd{});
+        return make_rule_cmd(compiler_, compiler::dep_cmd{});
     }
-    rule_cmd object_command() override
+    rule_cmd object_command(compiler_ptr& compiler_) override
     {
-        return make_rule_cmd(command(), compiler::object_so_cmd{});
+        return make_rule_cmd(compiler_, compiler::object_so_cmd{});
     }
-    rule_cmd target_command() override
+    rule_cmd target_command(compiler_ptr& compiler_) override
     {
-        return make_rule_cmd(command(), compiler::shared_cmd{});
+        return make_rule_cmd(compiler_, compiler::shared_cmd{});
     }
 
     timestamp last_modified() const override
