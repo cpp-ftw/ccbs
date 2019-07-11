@@ -23,7 +23,7 @@ public:
 
     const std::set<rule_ptr>& rules() const { return rules_; }
 
-    int build(std::set<package*> const& dependencies, options&);
+    int build(std::vector<package*> const& dependencies, options&);
     static int build_dependencies(std::set<package*> const& dependencies, options&, compiler_ptr&);
 };
 

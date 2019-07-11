@@ -24,8 +24,8 @@ public:
     {}
 
     virtual int build(options&, compiler_ptr&);
-    virtual int build_dependencies(options&, compiler_ptr&);
-    virtual int build_rules(options&, compiler_ptr&);
+    virtual int build_dependencies(std::vector<package*> deps, options&, compiler_ptr&);
+    virtual int build_rules(std::vector<package*> deps, options&, compiler_ptr&);
     virtual void add_rules(ruleset& rules, compiler_ptr&);
     virtual void build_flags(options &, compiler_ptr &) {}
 

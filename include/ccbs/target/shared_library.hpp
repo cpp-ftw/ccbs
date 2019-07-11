@@ -18,10 +18,7 @@ public:
     {
         return build_target::dependencies();
     }
-    int prepare(options& options_, compiler_ptr& compiler_) override
-    {
-        return build_rules(options_, compiler_);
-    }
+    int prepare(options& options_, compiler_ptr& compiler_) override;
     void use_flags(compiler& cc) const override;
 
     rule_cmd dependency_command(compiler_ptr& compiler_) override

@@ -17,7 +17,7 @@
 
 namespace ccbs {
 
-using rule_cmd = std::function<int(std::set<ccsh::fs::path> const&, ccsh::fs::path const&, std::set<package*> const&)>;
+using rule_cmd = std::function<int(std::set<ccsh::fs::path> const&, ccsh::fs::path const&, std::vector<package*> const&)>;
 
 class rule;
 using rule_ptr = std::shared_ptr<rule>;
@@ -41,7 +41,7 @@ public:
 
     virtual bool needs_rebuild() const;
 
-    virtual int make(std::set<package*> const& dependencies)
+    virtual int make(std::vector<package*> const& dependencies)
     {
         return cmd(inputs_, output_, dependencies);
     }

@@ -2,15 +2,22 @@
 #include <ccbs/rule/ruleset.hpp>
 #include <ccbs/rule/dependency_rule.hpp>
 #include <ccbs/rule/link_rule.hpp>
+#include <ccbs/util/containers.hpp>
 
 using namespace ccsh::literals;
 
 namespace ccbs
 {
 
-int build_target::build_dependencies(options& options_, compiler_ptr& compiler_)
+int build_target::build_dependencies(std::vector<package*> deps, options& options_, compiler_ptr& compiler_)
 {
-    return ruleset::build_dependencies(dependencies(), options_, compiler_);
+    for (const auto& dep : deps)
+    {
+        int result = dep->prepare(options_, compiler_);
+        if (result != 0)
+            return result;
+    }
+    return 0;
 }
 
 void build_target::add_rules(ruleset& rules, compiler_ptr& compiler_)
@@ -50,7 +57,7 @@ void build_target::add_rules(ruleset& rules, compiler_ptr& compiler_)
 }
 
 
-int build_target::build_rules(options& options_, compiler_ptr& compiler_)
+int build_target::build_rules(std::vector<package*> deps, options& options_, compiler_ptr& compiler_)
 {
     ruleset target;
     build_flags(options_, compiler_);
@@ -64,16 +71,22 @@ int build_target::build_rules(options& options_, compiler_ptr& compiler_)
         return ec ? 1 : 0;
     }
 
-    return target.build(dependencies(), options_);
+    return target.build(deps, options_);
 }
 
 int build_target::build(options& options_, compiler_ptr& compiler_)
 {
-    int result1 = build_dependencies(options_, compiler_);
+    auto serialized_deps = serialize_set(
+            dependencies(),
+            [](package* dep) { return dep; },
+            [](package* dep) { return dep->dependencies(); }
+    );
+
+    int result1 = build_dependencies(serialized_deps, options_, compiler_);
     if (result1 != 0)
         return result1;
 
-    return build_rules(options_, compiler_);
+    return build_rules(serialized_deps, options_, compiler_);
 }
 
 }

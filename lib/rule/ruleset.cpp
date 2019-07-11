@@ -23,7 +23,7 @@ int ruleset::build_dependencies(std::set<package*> const& dependencies, options&
     return 0;
 }
 
-int ruleset::build(std::set<package*> const& dependencies, options& options_)
+int ruleset::build(std::vector<package*> const& dependencies, options& options_)
 {
     // TODO: options may contain information about parallelization
     int no_threads = 5;
