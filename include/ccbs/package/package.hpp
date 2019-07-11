@@ -23,7 +23,7 @@ public:
 
     virtual std::set<package*> dependencies() const { return {}; }
 
-    virtual void use_flags(compiler&) const = 0;
+    virtual void use_flags(compiler&, options&) const = 0;
 
     virtual ~package() = default;
 };

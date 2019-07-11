@@ -50,7 +50,7 @@ int ruleset::build(std::vector<package*> const& dependencies, options& options_)
     {
         int res = 0;
         if (rebuild || ptr->needs_rebuild())
-            res = ptr->make(dependencies);
+            res = ptr->make(dependencies, options_);
         return res;
     };
 

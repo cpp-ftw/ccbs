@@ -24,12 +24,13 @@ rule_cmd make_rule_cmd(compiler_ptr const& rule, category_spec c)
 {
     return [rule, c](std::set<ccsh::fs::path> const& inputs,
                   ccsh::fs::path const& output,
-                  std::vector<package*> const& pkgs) -> int {
+                  std::vector<package*> const& pkgs,
+                  options& options_) -> int {
 
         auto rule_copy = rule;
 
         for (auto rit = pkgs.rbegin(); rit != pkgs.rend(); ++rit)
-            (*rit)->use_flags(*rule_copy);
+            (*rit)->use_flags(*rule_copy, options_);
 
         ccsh::fs::path output_dir = output.parent_path();
 
