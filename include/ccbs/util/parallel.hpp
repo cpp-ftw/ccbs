@@ -25,7 +25,7 @@ int parallel_process(
         last - first,
         no_threads,
         [&](std::size_t i) -> int { return callback(*(first + i)); },
-        [&](std::size_t a, std::size_t b) -> bool { return conflicts(*(first + a), *(first + b)); });
+        [&](std::size_t a, std::size_t b) -> bool { return conflicts(first[a], first[b]); });
 }
 
 #endif //PROJECT_PARALLEL_HPP

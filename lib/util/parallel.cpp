@@ -31,7 +31,7 @@ int parallel_process(std::size_t count, std::size_t no_threads, std::function<in
     int exit_code = 0;
     std::mutex state_mtx;
     std::condition_variable block;
-
+    std::size_t no_finished = 0;
 
     auto thread_func = [&]() -> void
     {
@@ -73,9 +73,9 @@ int parallel_process(std::size_t count, std::size_t no_threads, std::function<in
             if (state == thread_status::working)
             {
                 int result = callback(index);
-
                 {
                     std::lock_guard<std::mutex> lock{state_mtx};
+                    ++no_finished;
                     if (result == 0)
                     {
                         states[index] = parallel_state::succeeded;
@@ -91,8 +91,9 @@ int parallel_process(std::size_t count, std::size_t no_threads, std::function<in
             }
             else if (state == thread_status::blocked)
             {
+                std::size_t before = no_finished;
                 std::unique_lock<std::mutex> lk{state_mtx};
-                block.wait(lk, [] { return true; });
+                block.wait(lk, [&, before] { return before != no_finished; });
             }
         }
     };
