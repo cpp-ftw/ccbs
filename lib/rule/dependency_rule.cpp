@@ -9,7 +9,7 @@ void dependency_parser(std::string line, std::set<ccsh::fs::path>& headers)
 {
     auto npos = std::string::npos;
 
-    auto colon = line.find(':');
+    auto colon = line.find(": ");
     if (colon != npos)
         line = line.substr(colon + 1);
 
